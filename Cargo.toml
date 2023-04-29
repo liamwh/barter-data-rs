@@ -18,7 +18,8 @@ rust_decimal_macros = "1.29.1"
 
 [dependencies]
 # Barter Ecosystem
-barter-integration = "0.5.3"
+# barter-integration = "0.5.3"
+barter-integration = { git = "https://github.com/liamwh/barter-execution-rs.git" }
 barter-macro =  "0.1.1"
 
 # Logging
