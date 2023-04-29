@@ -165,15 +165,19 @@ where
     Transformer: ExchangeTransformer<Exchange, Kind> + Send,
     Kind::Event: Send,
 {
+    #[tracing::instrument]
     async fn init(subscriptions: &[Subscription<Exchange, Kind>]) -> Result<Self, DataError>
     where
         Subscription<Exchange, Kind>: Identifier<Exchange::Channel> + Identifier<Exchange::Market>,
     {
+        tracing::info!("Initialising MarketStream for {:?}", subscriptions);
         // Connect & subscribe
         let (websocket, map) = Exchange::Subscriber::subscribe(subscriptions).await?;
+        tracing::info!("Connected and subscribed to {:?}", subscriptions);
 
         // Split WebSocket into WsStream & WsSink components
         let (ws_sink, ws_stream) = websocket.split();
+        tracing::info!("Split WebSocket into WsStream & WsSink components");
 
         // Spawn task to distribute Transformer messages (eg/ custom pongs) to the exchange
         let (ws_sink_tx, ws_sink_rx) = mpsc::unbounded_channel();
@@ -205,6 +209,7 @@ where
 /// **Note:**
 /// ExchangeTransformer is operating in a synchronous trait context so we use this separate task
 /// to avoid adding `#[\async_trait\]` to the transformer - this avoids allocations.
+#[tracing::instrument]
 pub async fn distribute_messages_to_exchange(
     exchange: ExchangeId,
     mut ws_sink: WsSink,

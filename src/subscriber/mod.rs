@@ -47,6 +47,7 @@ pub struct WebSocketSubscriber;
 impl Subscriber for WebSocketSubscriber {
     type SubMapper = WebSocketSubMapper;
 
+    #[tracing::instrument]
     async fn subscribe<Exchange, Kind>(
         subscriptions: &[Subscription<Exchange, Kind>],
     ) -> Result<(WebSocket, Map<Instrument>), SocketError>
